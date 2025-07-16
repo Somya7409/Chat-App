@@ -19,6 +19,11 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+    firebaseUid: {
+      type: String,
+      required: true, // optional for now
+      unique: true,     // each Firebase UID should be unique
+    },
   },
   { timestamps: true }
 );

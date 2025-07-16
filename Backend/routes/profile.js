@@ -7,13 +7,13 @@ const router = express.Router();
 // Middleware to verify token
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // "Bearer <token>"
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
 
   if (!token) return res.sendStatus(401);
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) return res.sendStatus(403);
-    req.user = user;
+    req.user = decoded; // contains userId
     next();
   });
 };
@@ -24,8 +24,13 @@ router.get('/', authenticateToken, async (req, res) => {
     const user = await User.findById(req.user.userId).select('-password');
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    res.json(user);
+    res.json({
+      username: user.username,
+      email: user.email,
+      userId: user.firebaseUid, // important for chat
+    });
   } catch (err) {
+    console.error("❌ Profile fetch error:", err);
     res.status(500).json({ error: 'Server error' });
   }
 });

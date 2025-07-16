@@ -1,0 +1,80 @@
+.Background {
+    
+    background-color: rgb(9, 9, 9);
+    border-color: black;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  
+}
+
+.blocks {
+    border: 2px solid white;
+    border-color: black;
+    background-color: rgb(44, 235, 34);
+
+    height: 25vh;
+    width: 35vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    row-gap: 10px;
+    padding: 100px 50px 50px 50px;
+    border-radius: 7px;
+   
+
+
+}
+
+.register {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+
+}
+
+.register-link {
+    color: rgb(165, 43, 210);
+
+}
+
+
+
+.blocks :nth-child(1) {
+    width: 30vw;
+    font-size: 15px;
+    padding: 10px 8px 8px 8px;
+    background-color: rgb(57, 55, 55);
+    border-radius: 5px;
+    color: white;
+    border-color: rgb(12, 79, 29);
+    border-width: 0.1cm;
+}
+
+.blocks :nth-child(2) {
+    border-color: rgb(12, 79, 29);
+    border-width: 0.1cm;
+    width: 30vw;
+    font-size: 15px;
+    padding: 10px 8px 8px 8px;
+    background-color: rgb(57, 55, 55);
+    border-radius: 5px;
+    color: white;
+}
+
+.blocks :nth-child(3) {
+    width: 15vw;
+    font-size: 18px;
+    padding: 5px 5px 5px 5px;
+    font-weight: bolder;
+    border-radius: 5px;
+    background-color: rgb(19, 146, 4);
+    border-color: rgb(12, 79, 29);
+    border-width: 0.1cm;
+}
