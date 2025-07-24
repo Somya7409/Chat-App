@@ -3,6 +3,7 @@ import { authAPI } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'; // ✅ Firebase Auth
 import app from '../firebase'; // ✅ your initialized frontend Firebase app
+import './Register.css';
 
 const Register = () => {
   const [form, setForm] = useState({ username: '', email: '', password: '' });
@@ -45,13 +46,16 @@ const Register = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <div className="boxes">
+      <form  className="buttons" onSubmit={handleSubmit}>
       <input name="username" value={form.username} onChange={handleChange} placeholder="Username" required />
       <input name="email" value={form.email} onChange={handleChange} placeholder="Email" required />
       <input type="password" name="password" value={form.password} onChange={handleChange} placeholder="Password" required />
       <button type="submit">Register</button>
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </form>
+    </div>
+    
   );
 };
 

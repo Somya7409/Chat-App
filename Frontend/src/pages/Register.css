@@ -1,5 +1,5 @@
-.Background {
-    background-image: url("wavy.avif");
+.boxes {
+   background-image: url("wavy.avif");
     background-repeat: no-repeat;
   background-size: cover;       
   background-position: center;
@@ -10,13 +10,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-  
+    justify-content: center; 
+    
 }
 
-.blocks {
-    
-
+.buttons {
     height: 25vh;
     width: 35vw;
     display: flex;
@@ -26,29 +24,10 @@
     row-gap: 10px;
     
     border-radius: 7px;
-   
-   
+    
 }
 
-.register {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: rgb(11, 11, 11);
-    font-size: 16px;
-    font-weight: 500;
-
-}
-
-.register-link {
-    color: rgba(72, 34, 241, 0.951);
-
-}
-
-
-
-.blocks :nth-child(1) {
+.buttons :nth-child(1) {
     width: 30vw;
     font-size: 15px;
     padding: 10px 8px 8px 8px;
@@ -57,11 +36,10 @@
     color: white;
     border-color: rgb(6, 6, 6);
     
-
 }
 
-.blocks :nth-child(2) {
-   width: 30vw;
+.buttons :nth-child(2) {
+    width: 30vw;
     font-size: 15px;
     padding: 10px 8px 8px 8px;
     background-color: rgb(57, 55, 55);
@@ -71,8 +49,18 @@
     
 }
 
-.blocks :nth-child(3) {
-    width: 10vw;
+.buttons :nth-child(3) {
+     width: 30vw;
+    font-size: 15px;
+    padding: 10px 8px 8px 8px;
+    background-color: rgb(57, 55, 55);
+    border-radius: 5px;
+    color: white;
+    border-color: rgb(6, 6, 6);
+    
+}
+.buttons :nth-child(4) {
+    width: 12vw;
     font-size: 16px;
     padding: 5px 5px 5px 5px;
     font-weight:800;
@@ -95,7 +83,6 @@
   box-shadow: 0 2px 7px rgba(204, 201, 201, 0.729);
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-
 
 
 }
