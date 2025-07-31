@@ -4,21 +4,23 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // ✅
 
-  // ✅ Load from localStorage on app reload
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-     try {
-      const parsedUser = JSON.parse(storedUser);
-      console.log("🔍 AuthContext user:", parsedUser); // ✅ Add this line
-      setUser(parsedUser);
-    } catch (e) {
-      console.error('❌ Invalid user data in localStorage', e);
-      localStorage.removeItem('user');
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        console.log("🔍 AuthContext user:", parsedUser);
+        setUser(parsedUser);
+      } catch (e) {
+        console.error('❌ Invalid user data in localStorage', e);
+        localStorage.removeItem('user');
+      }
     }
-    }
+    setLoading(false); // ✅ Always set loading to false
   }, []);
+
   const login = (user, token) => {
     localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('token', token);
@@ -32,7 +34,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

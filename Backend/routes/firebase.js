@@ -39,6 +39,33 @@ router.post('/sendMessage', async (req, res) => {
     status: 'NOT_SEEN',
     img_message: ''
   };
+  // ✅ Route to send a call request
+router.post('/sendCallRequest', async (req, res) => {
+  const { callerId, receiverId } = req.body;
+
+  if (!callerId || !receiverId) {
+    return res.status(400).json({ message: "Missing callerId or receiverId" });
+  }
+
+  const roomId = `${callerId}-${receiverId}-${Date.now()}`;
+
+  const callData = {
+    receiverId,
+    from, 
+    fromName,  
+    status: "incoming",
+    roomId
+  };
+
+  try {
+    await set(ref(db, `Calls/${callerId}`), callData);
+    res.status(200).json({ message: 'Call request sent', roomId });
+  } catch (error) {
+    console.error("❌ Firebase call request error:", error);
+    res.status(500).json({ message: 'Failed to send call request', error });
+  }
+});
+
 
   try {
     await push(ref(db, 'Chats'), messageData); // ✅ push() with ref()

@@ -1,14 +1,25 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const mongoose = require('mongoose'); // ✅ import mongoose
+const mongoose = require('mongoose');
+const path = require('path'); // ✅ Add this
 
 dotenv.config();
 
-// ✅ Allow multiple origins
 const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001'];
 
 const app = express();
+
+const uploadRoutes = require('./routes/upload');
+app.use('/api/upload', uploadRoutes);
+
+const mediaRoutes = require('./routes/mediaRoutes');
+app.use('/api/media', mediaRoutes);
+app.use('/uploads', express.static('uploads')); // serve static files
+
+// ✅ Make /uploads folder publicly accessible
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.use('/api/firebase', require('./routes/firebase'));
 app.use(cors({
   origin: function (origin, callback) {
@@ -32,7 +43,6 @@ console.log("✅ /api/profile routes registered");
 
 app.use('/api/messages', require('./routes/messages'));
 
-
 // ✅ MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
@@ -41,7 +51,7 @@ mongoose.connect(process.env.MONGO_URI, {
   .then(() => console.log('✅ MongoDB connected successfully'))
   .catch((err) => {
     console.error('❌ MongoDB connection error:', err);
-    process.exit(1); // stop the app if DB fails
+    process.exit(1);
   });
 
 // Test route
@@ -54,4 +64,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
-

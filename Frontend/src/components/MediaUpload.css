@@ -1,0 +1,51 @@
+.dropzone-container {
+  border: 2px dashed #aaa;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  margin-top: 20px;
+}
+
+.dropzone {
+  font-size: 1.1rem;
+  color: #555;
+ 
+}
+
+.dropzone.active {
+  border-color: #007bff;
+  background-color: #eaf4ff;
+}
+
+.preview-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+.preview img,
+.preview video {
+  max-width: 150px;
+  border-radius: 6px;
+}
+
+.progress {
+  margin-top: 10px;
+  font-weight: bold;
+}
+.preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+}
+
+.download-btn {
+  margin-top: 5px;
+  text-decoration: none;
+  color: #1d72b8;
+  font-weight: bold;
+}

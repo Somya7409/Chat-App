@@ -16,3 +16,6 @@ Thumbs.db
 
 # VS Code settings (optional)
 .vscode/
+
+
+Backend/serviceAccountKey.json

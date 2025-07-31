@@ -11,7 +11,7 @@ router.post('/', auth, async (req, res) => {
   try {
     // 1. Save message to MongoDB
     const newMsg = new Message({
-      sender: req.user.id,
+      sender: req.user.userId,
       receiver,
       message
     });
@@ -20,7 +20,7 @@ router.post('/', auth, async (req, res) => {
     // 2. Push message to Firebase Realtime Database
     await admin.database().ref('ChatApp/Chats').push({
       message,
-      sender: req.user.id,
+      sender: req.user.userId,
       receiver,
       timestamp: Date.now()
     });
@@ -36,8 +36,8 @@ router.get('/:userId', auth, async (req, res) => {
   try {
     const messages = await Message.find({
       $or: [
-        { sender: req.user.id, receiver: req.params.userId },
-        { sender: req.params.userId, receiver: req.user.id }
+        { sender: req.user.userId, receiver: req.params.userId },
+        { sender: req.params.userId, receiver: req.user.userId }
       ]
     }).sort({ createdAt: 1 });
 
