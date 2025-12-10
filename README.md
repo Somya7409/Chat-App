@@ -1,7 +1,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Realtime Chat App - README</title>
+
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6;">
 
@@ -216,8 +216,7 @@ backend/src/utils/serviceAccountKey.json
 
 <p>
 <strong>Somya Aditya</strong><br>
-Full-Stack Developer | Realtime Systems | React | Firebase<br>
-GitHub: <a href="https://github.com/somyaaditya" target="_blank">somyaaditya</a>
+Full-Stack Developer | Realtime Systems | React | Firebase
 </p>
 
 </body>
