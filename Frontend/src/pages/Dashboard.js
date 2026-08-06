@@ -16,6 +16,7 @@ import MediaUpload from '../components/MediaUpload';
 
 const Dashboard = () => {
   const { user, logout } = useContext(AuthContext);
+  console.log("USER OBJECT:", user);
   const currentUserUid = user?.firebaseUid || user?.uid || user?.userId || user?._id;
   const navigate = useNavigate();
 
@@ -27,7 +28,8 @@ const Dashboard = () => {
   const [incomingCall, setIncomingCall] = useState(null); // { from, roomId }
   const [showVideoCall, setShowVideoCall] = useState(false);
   const [activeRoomId, setActiveRoomId] = useState(null);
-
+  const [selectedMedia, setSelectedMedia] = useState(null);
+  const [clearMedia, setClearMedia] = useState(false);
 
 
   // ✅ Restore chat on reload but exclude self-chat
@@ -57,10 +59,14 @@ const Dashboard = () => {
 
   // ✅ Fetch ChatUsers (with UID included)
   useEffect(() => {
+    console.log("USERS EFFECT RUNNING");
     const usersRef = ref(db, "ChatUsers");
 
     const unsubscribe = onValue(usersRef, (snapshot) => {
       const data = snapshot.val();
+
+      console.log("RAW FIREBASE DATA:", data);
+
       if (!data) return;
 
       const allUsers = Object.entries(data).map(([uid, user]) => ({
@@ -68,7 +74,15 @@ const Dashboard = () => {
         ...user,
       }));
 
+      console.log("CURRENT USER UID:", currentUserUid);
+      console.log("ALL USERS:", allUsers);
+
+
       const filteredUsers = allUsers.filter(u => u.userId !== currentUserUid);
+
+      console.log("FILTERED USERS:", filteredUsers);
+
+
       setChatUsers(filteredUsers);
     });
 
@@ -119,22 +133,58 @@ const Dashboard = () => {
 
     return () => unsubscribe();
   }, [currentUserUid, selectedUserId]);
-
-  // ✅ Send message
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!input.trim() || !currentUserUid || !selectedUserId) return;
+  const handleMediaUpload = async (fileData) => {
+    if (!currentUserUid || !selectedUserId) return;
 
     const now = new Date();
+
     const newMessage = {
-      message: input,
+      message: fileData.url,
       sender: currentUserUid,
       receiver: selectedUserId,
       date: now.toLocaleDateString('en-GB'),
       time: now.toLocaleTimeString('en-US'),
       timestamp: Date.now(),
       status: 'NOT_SEEN',
+      type: fileData.type,
       img_message: '',
+    };
+
+    try {
+      await push(ref(db, 'Chats'), newMessage);
+
+      await set(
+        ref(db, `Chatlist/${currentUserUid}/${selectedUserId}`),
+        { id: selectedUserId }
+      );
+
+      await set(
+        ref(db, `Chatlist/${selectedUserId}/${currentUserUid}`),
+        { id: currentUserUid }
+      );
+
+      console.log("✅ Media message sent");
+    } catch (err) {
+      console.error("❌ Media send failed", err);
+    }
+  };
+  // ✅ Send message
+  const handleSend = async (e) => {
+    e.preventDefault();
+    if ((!input.trim() && !selectedMedia) ||
+      !currentUserUid ||
+      !selectedUserId) return;
+    const now = new Date();
+    const newMessage = {
+      message: input,
+      mediaUrl: selectedMedia ? selectedMedia.url : '',
+      mediaType: selectedMedia ? selectedMedia.type : '',
+      sender: currentUserUid,
+      receiver: selectedUserId,
+      date: now.toLocaleDateString('en-GB'),
+      time: now.toLocaleTimeString('en-US'),
+      timestamp: Date.now(),
+      status: 'NOT_SEEN',
     };
 
     try {
@@ -148,6 +198,12 @@ const Dashboard = () => {
       });
 
       setInput('');
+      setSelectedMedia(null);
+      setClearMedia(true);
+
+      setTimeout(() => {
+        setClearMedia(false);
+      }, 100);
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -347,15 +403,34 @@ const Dashboard = () => {
                     className={`message ${msg.sender === currentUserUid ? 'sent' : 'received'}`}
                   >
                     <div className="message-text">
-                      {msg.type === 'image' ? (
-                        <img src={msg.message} alt="sent image" style={{ maxWidth: '200px' }} />
-                      ) : msg.type === 'video' ? (
-                        <video src={msg.message} controls style={{ maxWidth: '200px' }} />
-                      ) : msg.type === 'audio' ? (
-                        <audio src={msg.message} controls />
-                      ) : (
+ 
+                      {msg.mediaType === 'image' && (
+                        <img
+                          src={msg.mediaUrl}
+                          alt="sent"
+                          style={{ maxWidth: '200px' }}
+                        />
+                      )}
+
+                      {msg.mediaType === 'video' && (
+                        <video
+                          src={msg.mediaUrl}
+                          controls
+                          style={{ maxWidth: '200px' }}
+                        />
+                      )}
+
+                      {msg.mediaType === 'audio' && (
+                        <audio
+                          src={msg.mediaUrl}
+                          controls
+                        />
+                      )}
+
+                       {msg.message && (
                         <p>{msg.message}</p>
                       )}
+
                     </div>
 
                     <div className="message-time">
@@ -377,7 +452,12 @@ const Dashboard = () => {
         </div>
 
         <form className="chat-input" onSubmit={handleSend}>
-          <MediaUpload />
+          <MediaUpload
+            clearMedia={clearMedia}
+            onUploadComplete={(fileData) => {
+              setSelectedMedia(fileData);
+            }}
+          />
           <input
             type="text"
             value={input}

@@ -9,8 +9,7 @@ dotenv.config();
 const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001'];
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+
 const uploadRoutes = require('./routes/upload');
 app.use('/api/upload', uploadRoutes);
 
@@ -20,20 +19,19 @@ app.use('/uploads', express.static('uploads')); // serve static files
 
 // ✅ Make /uploads folder publicly accessible
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/thumbnails', express.static('thumbnails'));
 
 app.use('/api/firebase', require('./routes/firebase'));
-// app.use(cors({
-//   origin: function (origin, callback) {
-//     if (!origin || allowedOrigins.includes(origin)) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   },
-//   credentials: true
-// }));
-
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+app.use(express.json());
 
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);

@@ -18,6 +18,7 @@ const upload = multer({ storage });
 
 // Upload image, video, or audio
 router.post('/upload', upload.single('file'), async (req, res) => {
+   console.log("MEDIA ROUTE HIT");
   const file = req.file;
 
   if (!file) return res.status(400).json({ error: 'No file uploaded' });

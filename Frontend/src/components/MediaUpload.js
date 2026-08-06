@@ -1,48 +1,51 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios';
 import './MediaUpload.css';
 
-const MediaUpload = ({ onUploadComplete }) => {
+const MediaUpload = ({ onUploadComplete, clearMedia }) => {
     const [previews, setPreviews] = useState([]);
     const [uploadProgress, setUploadProgress] = useState(null);
 
-    const storage = getStorage();
 
-    const onDrop = useCallback((acceptedFiles) => {
-        acceptedFiles.forEach((file) => {
+
+    const onDrop = useCallback(async (acceptedFiles) => {
+        for (const file of acceptedFiles) {
             const url = URL.createObjectURL(file);
             const type = file.type.split('/')[0]; // image, video, audio
 
             setPreviews((prev) => [...prev, { file, url, type }]);
 
-            const uniqueName = `${uuidv4()}-${file.name}`;
-            const storageRef = ref(storage, `media/${uniqueName}`);
-            const uploadTask = uploadBytesResumable(storageRef, file);
+            const formData = new FormData();
+            formData.append('file', file);
 
-            uploadTask.on(
-                'state_changed',
-                (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    setUploadProgress(progress.toFixed(0));
-                },
-                (error) => console.error('❌ Upload error:', error),
-                () => {
-                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        console.log('✅ Uploaded:', downloadURL);
-                        if (onUploadComplete) {
-                            onUploadComplete({
-                                url: downloadURL,
-                                name: file.name,
-                                type: type,
-                                mimetype: file.type,
-                            });
-                        }
+            try {
+                const res = await axios.post(
+                    'http://localhost:5000/api/media/upload',
+                    formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    }
+                );
+
+                const mediaUrl = `http://localhost:5000${res.data.url}`;
+
+                console.log('✅ Uploaded:', mediaUrl);
+
+                if (onUploadComplete) {
+                    onUploadComplete({
+                        url: mediaUrl,
+                        name: file.name,
+                        type,
+                        mimetype: file.type,
                     });
                 }
-            );
-        });
+            } catch (error) {
+                console.error('❌ Upload error:', error);
+            }
+        }
     }, [onUploadComplete]);
 
     // Clean up blob URLs to avoid memory leaks
@@ -51,6 +54,12 @@ const MediaUpload = ({ onUploadComplete }) => {
             previews.forEach((p) => URL.revokeObjectURL(p.url));
         };
     }, [previews]);
+
+    useEffect(() => {
+        if (clearMedia) {
+            setPreviews([]);
+        }
+    }, [clearMedia]);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,

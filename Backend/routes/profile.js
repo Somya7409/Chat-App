@@ -1,3 +1,4 @@
+const { db } = require('../firebaseAdmin');
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
@@ -54,13 +55,18 @@ router.post('/upload-profile', authenticateToken, upload.single('profilePic'), a
 
     const imageUrl = `http://localhost:5000/uploads/profilePics/${req.file.filename}`;
 
-    // Update MongoDB based on firebaseUid (from JWT)
-    await User.updateOne(
-      { firebaseUid: req.user.userId },
-      { photo: imageUrl }
-    );
+    console.log("JWT USER:", req.user);
+console.log("IMAGE URL:", imageUrl);
 
-    res.json({ imageUrl });
+const result = await User.updateOne(
+  { firebaseUid: req.user.userId },
+  { photo: imageUrl }
+);
+await db.ref(`ChatUsers/${req.user.userId}/photo`).set(imageUrl);
+
+console.log("UPDATE RESULT:", result);
+
+res.json({ imageUrl, result });
   } catch (err) {
     console.error('❌ Upload error:', err);
     res.status(500).json({ error: 'Failed to upload profile picture' });

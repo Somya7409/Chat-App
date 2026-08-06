@@ -1,18 +1,22 @@
-import React, { useState, useContext } from 'react';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { updateProfile, getAuth } from 'firebase/auth';
-import { AuthContext } from '../context/AuthContext';
-import { storage } from '../firebase';
-import wavyAvatar from './wavy.avif';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 
+import { AuthContext } from '../context/AuthContext';
+
+import wavyAvatar from './wavy.avif';
+import "./EditProfile.css";
 const EditProfile = () => {
-  const { user } = useContext(AuthContext);
-  const auth = getAuth();
+  const { user, setUser } = useContext(AuthContext);
+
 
   const [image, setImage] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(user?.photoURL || null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [saving, setSaving] = useState(false);
-
+  const fileInputRef = useRef(null);
+  useEffect(() => {
+    if (user?.photo) {
+      setPreviewUrl(user.photo);
+    }
+  }, [user]);
   if (!user) return <p>Loading user data...</p>;
 
   const handleImageChange = (e) => {
@@ -23,66 +27,107 @@ const EditProfile = () => {
     }
   };
 
+
   const handleSave = async () => {
-    if (!user) return;
+    if (!image) {
+      alert("Please select an image");
+      return;
+    }
 
     setSaving(true);
-    try {
-      let photoURL = user.photoURL;
 
-      if (image) {
-        const imageRef = ref(storage, `profileImages/${user.userId}-${image.name.replace(/\s/g, '_')}`);
-        await uploadBytes(imageRef, image);
-        photoURL = await getDownloadURL(imageRef);
+    try {
+      const token = localStorage.getItem("token");
+
+      const formData = new FormData();
+      formData.append("profilePic", image);
+
+      const response = await fetch(
+        "http://localhost:5000/api/profile/upload-profile",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          body: formData
+        }
+      );
+
+      const data = await response.json();
+
+      console.log("UPLOAD RESPONSE:", data);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Upload failed");
       }
 
-      await updateProfile(auth.currentUser, {
-        photoURL,
-        displayName: user.username || user.email.split('@')[0], // fallback
-      });
+      // ✅ Update localStorage user
+      const updatedUser = {
+        ...user,
+        photo: data.imageUrl
+      };
 
-      alert('Profile updated successfully!');
+      localStorage.setItem(
+        "user",
+        JSON.stringify(updatedUser)
+      );
+      setUser(updatedUser);
+
+      // ✅ Update preview immediately
+      setPreviewUrl(data.imageUrl);
+
+      alert("Profile updated successfully!");
     } catch (err) {
-      console.error('Upload error:', err);
-      alert('Error updating profile');
+      console.error("Upload error:", err);
+      alert("Error updating profile");
     } finally {
       setSaving(false);
     }
   };
-
+  console.log("PREVIEW URL:", previewUrl);
+  console.log("USER PHOTO:", user?.photo);
+  
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Edit Profile</h2>
+    <div className="profile-page">
+      <div className="profile-container">
 
-      <div>
-        <label>Profile Picture:</label><br />
-        <img
-          src={previewUrl || wavyAvatar}
-          alt="Profile Preview"
-          style={{
-            width: '120px',
-            height: '120px',
-            borderRadius: '50%',
-            marginBottom: '10px',
-            objectFit: 'cover',
-          }}
-        />
-        <br />
-        <input type="file" accept="image/*" onChange={handleImageChange} />
+        <h2>{user.username || user.email.split("@")[0]}'s Profile</h2>
+
+        <div className="profile-image-section">
+
+          <div
+            className="profile-image-wrapper"
+            onClick={() => fileInputRef.current.click()}
+          >
+            <img
+              src={previewUrl || wavyAvatar}
+              alt="Profile Preview"
+              className="profile-picture-preview"
+            />
+
+            <div className="edit-overlay">
+              Edit
+            </div>
+          </div>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            hidden
+          />
+
+        </div>
+
+        <button
+          onClick={handleSave}
+          disabled={saving}
+        >
+          {saving ? "Saving..." : "Save"}
+        </button>
+
       </div>
-
-      <div style={{ marginTop: '15px' }}>
-        <label style={{ fontWeight: 'bold' }}>Username:</label><br />
-        <p>{user.username || user.email.split('@')[0]}</p>
-      </div>
-
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        style={{ marginTop: '20px', padding: '10px 20px' }}
-      >
-        {saving ? 'Saving...' : 'Save'}
-      </button>
     </div>
   );
 };

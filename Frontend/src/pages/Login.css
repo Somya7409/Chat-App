@@ -3,7 +3,7 @@
     background-repeat: no-repeat;
   background-size: cover;       
   background-position: center;
-    background-color: rgb(44, 43, 51);
+    background-color: rgb(185, 179, 187);
     border-color: black;
     width: 100vw;
     height: 100vh;
@@ -42,7 +42,7 @@
 }
 
 .register-link {
-    color: rgba(72, 34, 241, 0.951);
+    color: rgba(93, 10, 157, 0.951);
 
 }
 
@@ -52,7 +52,7 @@
     width: 30vw;
     font-size: 15px;
     padding: 10px 8px 8px 8px;
-    background-color: rgb(57, 55, 55);
+    background-color: rgb(61, 10, 85);
     border-radius: 5px;
     color: white;
     border-color: rgb(6, 6, 6);
@@ -64,7 +64,7 @@
    width: 30vw;
     font-size: 15px;
     padding: 10px 8px 8px 8px;
-    background-color: rgb(57, 55, 55);
+    background-color: rgb(61, 10, 85);
     border-radius: 5px;
     color: white;
     border-color: rgb(6, 6, 6);
@@ -79,16 +79,16 @@
     
     
     
-  background: linear-gradient(
+ background: linear-gradient(
     45deg,
-    #868585 5%,
-    #fff 10%,
-    #b1afaf 30%,
-    #d8d6d6 50%,
-    #a7a5a5 70%,
-    #fff 80%,
-    #6b6969 95%
-  );
+    #2d033b 5%,
+    #a855f7 15%,
+    #6b21a8 35%,
+    #c084fc 50%,
+    #7e22ce 65%,
+    #d8b4fe 80%,
+    #240046 95%
+);
   border-width: 3px;
   border-color: #a09f9f;
   border-radius: 6px;
@@ -96,6 +96,20 @@
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 
+}
+/* CENTER IMAGE + FILE INPUT */
+.profile-image-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
+/* CENTER FILE INPUT */
+.file-input {
+  text-align: center;
+}
 
+/* CENTER THE CHOOSE FILE BUTTON */
+.file-input::file-selector-button {
+  margin-right: 10px;
 }
